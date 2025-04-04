@@ -51,4 +51,5 @@ def predict():
     return jsonify({'predicted_yield': round(float(prediction), 2), 'model_used': model_type})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
