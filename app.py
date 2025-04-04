@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import numpy as np
 import pandas as pd
 import pickle
+import os  # <- Add this line
 from tensorflow.keras.models import load_model
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 
