@@ -8,9 +8,9 @@ from tensorflow.keras.models import load_model
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 
 app = Flask(__name__)
-CORS(app)  # ✅ Enables cross-origin requests
+CORS(app)  # Enables cross-origin requests (for HTML/JS form integration)
 
-# ✅ Load models
+# ✅ Load trained models
 cnn_model = load_model("yield_model_cnn.h5")
 lstm_model = load_model("yield_model_lstm.h5")
 
@@ -21,7 +21,7 @@ with open("scaler.pkl", "rb") as f:
 with open("label_encoders.pkl", "rb") as f:
     label_encoders = pickle.load(f)
 
-# ✅ Required feature order
+# ✅ Required input feature order
 features = ['State', 'Crop', 'Season', 'Area', 'Annual_Rainfall', 'Fertilizer', 'Pesticide']
 
 @app.route("/", methods=["GET"])
@@ -40,7 +40,7 @@ def predict():
         input_df = pd.DataFrame([{k: v for k, v in data.items() if k != "model"}])
 
         # ✅ Encode categorical variables safely
-        for col in ['State', 'Crop', 'Season']:
+      for col in ['State', 'Crop', 'Season']:
     val = input_df[col].iloc[0]
     try:
         input_df[col] = label_encoders[col].transform([val])
@@ -48,7 +48,6 @@ def predict():
         return jsonify({
             "error": f"❌ Error: '{val}' is not a known label for '{col}'. Please use a valid value from the training dataset."
         }), 400
-
 
         # ✅ Ensure correct feature order
         input_array = input_df[features].values
@@ -62,9 +61,13 @@ def predict():
         # ✅ Select and run model
         model = cnn_model if model_type == "cnn" else lstm_model
         prediction = model.predict(input_reshaped)[0][0]
+        predicted_yield = round(float(prediction), 2)
+
+        # ✅ Add logging here
+        print(f"📊 Predicted Yield: {predicted_yield} using {model_type.upper()} model")
 
         return jsonify({
-            'predicted_yield': round(float(prediction), 2),
+            'predicted_yield': predicted_yield,
             'model_used': model_type
         })
 
