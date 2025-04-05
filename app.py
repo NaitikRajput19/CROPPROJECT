@@ -42,10 +42,14 @@ def predict():
         # ✅ Encode categorical variables
     
 for col in ['State', 'Crop', 'Season']:
+    val = input_df[col].iloc[0]
     try:
-        input_df[col] = label_encoders[col].transform([input_df[col].iloc[0]])[0]
+        input_df[col] = label_encoders[col].transform([val])[0]
     except ValueError:
-        return jsonify({"error": f"❌ Error: '{input_df[col].iloc[0]}' is not a known label for '{col}'"}), 400
+        return jsonify({
+            "error": f"❌ Error: '{val}' is not a known label for '{col}'. Please use a valid value from the training dataset."
+        }), 400
+
 
                 
 
