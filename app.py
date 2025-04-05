@@ -40,9 +40,14 @@ def predict():
         input_df = pd.DataFrame([{k: v for k, v in data.items() if k != "model"}])
 
         # ✅ Encode categorical variables
-        for col in ['State', 'Crop', 'Season']:
-            if col in input_df:
-                input_df[col] = label_encoders[col].transform([input_df[col].iloc[0]])[0]
+    
+for col in ['State', 'Crop', 'Season']:
+    try:
+        input_df[col] = label_encoders[col].transform([input_df[col].iloc[0]])[0]
+    except ValueError:
+        return jsonify({"error": f"❌ Error: '{input_df[col].iloc[0]}' is not a known label for '{col}'"}), 400
+
+                
 
         # ✅ Ensure correct feature order
         input_array = input_df[features].values
