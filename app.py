@@ -8,7 +8,7 @@ from tensorflow.keras.models import load_model
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 
 app = Flask(__name__)
-CORS(app)  # ✅ Enables cross-origin requests from anywhere
+CORS(app)  # ✅ Enables cross-origin requests
 
 # ✅ Load models
 cnn_model = load_model("yield_model_cnn.h5")
@@ -34,29 +34,25 @@ def predict():
         data = request.json
         print("✅ Received data:", data)
 
-        model_type = data.get("model", "cnn")  # 'cnn' or 'lstm'
+        model_type = data.get("model", "cnn")  # cnn or lstm
 
         # ✅ Convert input to DataFrame
         input_df = pd.DataFrame([{k: v for k, v in data.items() if k != "model"}])
 
-        # ✅ Encode categorical variables
-    
-for col in ['State', 'Crop', 'Season']:
-    val = input_df[col].iloc[0]
-    try:
-        input_df[col] = label_encoders[col].transform([val])[0]
-    except ValueError:
-        return jsonify({
-            "error": f"❌ Error: '{val}' is not a known label for '{col}'. Please use a valid value from the training dataset."
-        }), 400
-
-
-                
+        # ✅ Encode categorical variables safely
+        for col in ['State', 'Crop', 'Season']:
+            val = input_df[col].iloc[0]
+            try:
+                input_df[col] = label_encoders[col].transform([val])[0]
+            except ValueError:
+                return jsonify({
+                    "error": f"❌ Error: '{val}' is not a known label for '{col}'. Please use a valid value from the training dataset."
+                }), 400
 
         # ✅ Ensure correct feature order
         input_array = input_df[features].values
 
-        # ✅ Scale numerical features
+        # ✅ Scale numerical features (from Area onward)
         input_array[:, 3:] = scaler.transform(input_array[:, 3:])
 
         # ✅ Reshape input for model
