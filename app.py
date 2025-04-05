@@ -41,13 +41,14 @@ def predict():
 
         # ✅ Encode categorical variables safely
         for col in ['State', 'Crop', 'Season']:
-            val = input_df[col].iloc[0]
-            try:
-                input_df[col] = label_encoders[col].transform([val])[0]
-            except ValueError:
-                return jsonify({
-                    "error": f"❌ Error: '{val}' is not a known label for '{col}'. Please use a valid value from the training dataset."
-                }), 400
+    val = input_df[col].iloc[0]
+    try:
+        input_df[col] = label_encoders[col].transform([val])
+    except ValueError:
+        return jsonify({
+            "error": f"❌ Error: '{val}' is not a known label for '{col}'. Please use a valid value from the training dataset."
+        }), 400
+
 
         # ✅ Ensure correct feature order
         input_array = input_df[features].values
