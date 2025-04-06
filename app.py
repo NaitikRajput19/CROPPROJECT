@@ -62,10 +62,10 @@ def predict():
 
     return jsonify({
         'predicted_yield': round(float(prediction), 2),
-        'model_used': model_type
-        state = request_json["State"].strip()
-crop = request_json["Crop"].strip()
-season = request_json["Season"].strip()
+        'model_used': model_type,
+        'State': cleaned_data.get("State"),
+        'Crop': cleaned_data.get("Crop"),
+        'Season': cleaned_data.get("Season")
     })
 
 if __name__ == "__main__":
