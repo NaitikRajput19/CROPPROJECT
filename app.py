@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 # Backend FastAPI URL
-API_URL = "http://127.0.0.1:8000/predict"  # Replace with actual URL if deployed
+API_URL = "https://crop-prediction-ykux.onrender.com/predict"
 
 st.title("🌾 Crop Yield Prediction App")
 st.markdown("Enter the details below to predict crop yield.")
