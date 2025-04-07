@@ -1,4 +1,9 @@
-Flask
+fastapi
+uvicorn
+streamlit
 pandas
-scikit-learn
+numpy
 tensorflow
+scikit-learn
+python-multipart
+requests
