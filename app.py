@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+import matplotlib.pyplot as plt
 
 # Backend FastAPI URL
 API_URL = "https://crop-prediction-ykux.onrender.com/predict"
@@ -38,7 +39,29 @@ if st.button("Predict"):
             result = response.json()
 
             if "predicted_yield" in result:
+                # Display selected model prediction
                 st.success(f"✅ Predicted Yield: **{result['predicted_yield']} tons/ha** using **{result['model_used'].upper()}** model")
+
+                # Optional: show both model predictions if available
+                cnn_yield = result.get("cnn_yield")
+                lstm_yield = result.get("lstm_yield")
+
+                if cnn_yield and lstm_yield:
+                    st.subheader("📊 CNN vs LSTM Yield Prediction")
+                    models = ["CNN", "LSTM"]
+                    yields = [cnn_yield, lstm_yield]
+
+                    fig, ax = plt.subplots()
+                    bars = ax.bar(models, yields, color=["#4CAF50", "#2196F3"])
+                    ax.set_ylabel("Yield (tons/ha)")
+                    ax.set_title("Model Output Comparison")
+
+                    for bar in bars:
+                        yval = bar.get_height()
+                        ax.text(bar.get_x() + bar.get_width() / 2, yval + 0.05, f"{yval:.2f}", ha='center')
+
+                    st.pyplot(fig)
+
             else:
                 st.error(f"❌ Error: {result.get('error', 'Unknown error')}")
         except Exception as e:
