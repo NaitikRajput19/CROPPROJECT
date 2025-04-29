@@ -75,20 +75,24 @@ def predict_yield(request_data: PredictionRequest):
         data_dict = request_data.dict()
         input_data = preprocess_input(data_dict)
 
-        model_type = data_dict["model"].strip().lower()
+        # Predict from both models
+        cnn_prediction = cnn_model.predict(input_data)[0][0]
+        lstm_prediction = lstm_model.predict(input_data)[0][0]
 
+        # Get the selected one
+        model_type = data_dict["model"].strip().lower()
         if model_type == "cnn":
-            model = cnn_model
+            selected_prediction = cnn_prediction
         elif model_type == "lstm":
-            model = lstm_model
+            selected_prediction = lstm_prediction
         else:
             raise ValueError(f"Unknown model type: {model_type}")
 
-        prediction = model.predict(input_data)[0][0]
-
         return {
-            "predicted_yield": round(float(prediction), 2),
-            "model_used": model_type
+            "predicted_yield": round(float(selected_prediction), 2),
+            "model_used": model_type,
+            "cnn_yield": round(float(cnn_prediction), 2),
+            "lstm_yield": round(float(lstm_prediction), 2)
         }
 
     except ValueError as e:
@@ -96,3 +100,4 @@ def predict_yield(request_data: PredictionRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"🔥 Server Error: {e}")
+
