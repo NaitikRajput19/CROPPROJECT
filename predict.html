@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Crop Yield Predictor</title>
+</head>
+<body>
+  <h2>🌾 Crop Yield Prediction</h2>
+
+  <form id="prediction-form">
+    <label>State:</label>
+    <input type="text" name="State" value="Assam" required placeholder="Assam"><br>
+
+    <label>Crop:</label>
+    <input type="text" name="Crop" value="Coconut" required placeholder="e.g. Coconut, Gram, Cotton(lint)"><br>
+
+    <label>Season:</label>
+    <input type="text" name="Season" value="Whole Year" required placeholder="e.g. Rabi, Kharif, Whole Year"><br>
+
+    <label>Area (hectares):</label>
+    <input type="number" name="Area" value="19656" required><br>
+
+    <label>Annual Rainfall (mm):</label>
+    <input type="number" step="any" name="Annual_Rainfall" value="2051.4" required><br>
+
+    <label>Fertilizer (kg):</label>
+    <input type="number" step="any" name="Fertilizer" value="1870661.52" required><br>
+
+    <label>Pesticide (kg):</label>
+    <input type="number" step="any" name="Pesticide" value="6093.36" required><br>
+
+    <label>Model (cnn/lstm):</label>
+    <input type="text" name="model" value="cnn" required placeholder="cnn or lstm"><br><br>
+
+    <button type="submit">Predict Yield</button>
+  </form>
+
+  <div id="result" style="margin-top:10px; font-weight:bold;"></div>
+
+  <script>
+    document.getElementById("prediction-form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const form = e.target;
+      const formData = new FormData(form);
+      const data = {};
+
+      formData.forEach((value, key) => {
+        if (["Area", "Annual_Rainfall", "Fertilizer", "Pesticide"].includes(key)) {
+          data[key] = parseFloat(value);
+        } else {
+          data[key] = value.trim();
+        }
+      });
+
+      try {
+        const response = await fetch("https://breakable-perri-nateindia-c94779ed.koyeb.app/predict", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          document.getElementById("result").innerText =
+            `✅ Predicted Yield: ${result.predicted_yield} (Model: ${result.model_used.toUpperCase()})`;
+        } else {
+          document.getElementById("result").innerText =
+            `❌ Error: ${result.error || 'Unknown error'}`;
+        }
+      } catch (error) {
+        document.getElementById("result").innerText = `❌ Network error: ${error.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
